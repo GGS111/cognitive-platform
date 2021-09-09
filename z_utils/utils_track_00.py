@@ -219,6 +219,7 @@ class TrackObjects:
         
         object_k['w'] = w
         object_k['h'] = h
+        print('id',object_k['id'],collect_confiedense[i_best])
         if collect_confiedense[i_best] > self.thr_confidence:
             object_k['descriptor_'].append(collect_color_featres_k[i_best])
 
@@ -298,12 +299,12 @@ class TrackObjects:
 
                             if object_k['age'] > 3 and len(object_k['descriptor_']) > 4:
                                 feature_in_u = [collect_featres_k[i] for i in i_class]
-                                feature_cur = object_k['descriptor_'][-5]
+                                feature_cur = object_k['descriptor_'][-2] #Вектор с которым мы сравниваем
                                 cos_measure = cos_distance_multi(feature_cur, feature_in_u) #Тут получаем более корректное косинусное расстояние, исходя из сравнения векторов
-
+                                print('cos_measure',cos_measure)
 
                                 i_d_U2 = np.where(cos_measure > thr_color_features_0) #Проверка к какому айдишнику относится данный вектор.
-
+                                print('i_d_U2',i_d_U2)
                             i_d_U = np.intersect1d(i_d_U1, i_d_U2) #Смотрит есть ли в изначальном списке выбранный айдишник
 
                             if len(i_d_U) > 0:
@@ -490,7 +491,7 @@ class TrackObjects:
             points = []
             owned = object_0[i]['owned'][-1]
             age = object_0[i]['holistic_age']
-            if owned > 0.5 and age > 4:
+            if owned > 0.5 and age > 4 and object_0[i]['w'] > 50 and object_0[i]['h'] > 50:
                 a = object_0[i]
 
                 bbox = [
@@ -618,7 +619,6 @@ class TrackObjects:
             a = object_0[i]
             owned =a['owned'][-1]
             age = a['holistic_age']
-            #print(a['id'],confidences)
             if owned > 0.5 and age > 4:
                 #try:
                 print(a['id'],a['confidences'][-1])
@@ -632,13 +632,10 @@ class TrackObjects:
                         norma_x = mean_points[0][0] - i[0]
                         norma_y = mean_points[0][1] - i[1]
                         norma_z = (mean_points[0][2] - i[2]) * 0.3
-                        #Получаем реальные координаты по х,y,z для тела
-                        x = a['3DV'][0] - norma_x
-                        y = a['3DV'][1] - norma_y
-                        z = a['3DV'][2] - norma_z
-                        spis_x.append(x)
-                        spis_y.append(y)
-                        spis_z.append(z)
+                        #Получаем реальные координаты по х,y,z для тела и добавляем в списки
+                        spis_x.append(a['3DV'][0] - norma_x)
+                        spis_y.append(a['3DV'][1] - norma_y)
+                        spis_z.append(a['3DV'][2] - norma_z)
                     a['3D_holistic'].append([spis_x,spis_y,spis_z])
                     self.drow_cub_1(ax1,a,spis_x,spis_y,spis_z,'Вид спереди',3,270,270)
                     self.drow_cub_1(ax2,a,spis_x,spis_y,spis_z,'Вид сверху',2,0,270)
