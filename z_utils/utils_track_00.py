@@ -286,18 +286,18 @@ class TrackObjects:
                             #По очереди вычитаем координаты каждого айдишника.
                             n_diff_opt_fl0 = np.linalg.norm(diff_points, axis=1)
                             #Получаем нормированное расстояние между полученными координатами
-                            n_diff_opt_fl = fun_865(object_k['age_lost']) + n_diff_opt_fl0 #Не используется
+                            n_diff_opt_fl = fun_865(object_k['age_lost']) + n_diff_opt_fl0 #Не используется)
 
 
 
-                            i_d_U1 = np.where(n_diff_opt_fl0 < object_k['radius']) 
+                            i_d_U1 = np.where(n_diff_opt_fl0 < object_k['radius']) #Проверка по радиусу. Отбирает только те, что находятся в зоне радиуса
                             #Показывает какие итерационные элементы пересекаются между собой
 
                             i_d_U2 = i_d_U1
                             ###  descriptor
-                            cos_measure = n_diff_opt_fl * 0 + 0.1 #Просто берем равное 0.1. Косинусное расстояние для всех новых детекций
+                            cos_measure = n_diff_opt_fl0 * 0 + 0.4 #Просто берем равное 0.1. Косинусное расстояние для всех новых детекций
 
-                            if object_k['age'] > 3 and len(object_k['descriptor_']) > 4:
+                            if object_k['age'] > 1 and len(object_k['descriptor_']) > 1:
                                 feature_in_u = [collect_featres_k[i] for i in i_class]
                                 feature_cur = object_k['descriptor_'][-2] #Вектор с которым мы сравниваем
                                 cos_measure = cos_distance_multi(feature_cur, feature_in_u) #Тут получаем более корректное косинусное расстояние, исходя из сравнения векторов
@@ -677,7 +677,7 @@ class TrackObjects:
 
 
     def drow_cub_1(self,ax,object,x,y,z,view,size,elev,azim):
-        colors = ['coral', 'lime', 'blue', 'purple', 'green', 'black', 'silver', 'yellow', 'red', 'pink']
+        colors = ['coral', 'lime', 'blue', 'purple', 'green', 'black', 'silver', 'yellow', 'red', 'pink','black', 'silver', 'yellow', 'red', 'pink']
         ax.elev = elev #270 - вид спереди. 0 - вид сверху
         ax.azim = azim #270 ставим
         ax.scatter(0, 0, 0, c='r') #Точка камеры. Цвет красная
