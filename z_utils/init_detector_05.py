@@ -20,8 +20,6 @@ def detector_cocos(conf_threshold , nms_threshold ): # cервак
     with open(path_0 + 'data/coco.names', 'r') as f:
         for line in f.readlines():
             LABELS.append(line.strip('\r\n'))
-    # thr_confidence = 0.5
-    # threshold_iou = 0.1  ## 0-квадратики не пересекаются, 1- могут пересекаться
     img_size = 416
     COLORS_ = np.random.randint(100, 255, size=(1100, 3), dtype="uint8")
     predictor_cocos = Predictor_01(1, configPath, weightsPath, conf_threshold, nms_threshold, img_size, LABELS, COLORS_)
