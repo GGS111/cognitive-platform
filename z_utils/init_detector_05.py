@@ -2,47 +2,10 @@ from z_utils.utils_015 import *
 import os
 import torch
 import time
-import os
+import cv2
 from facenet_pytorch import MTCNN, InceptionResnetV1
 from random import shuffle
 import numpy as np
-
-
-
-### Сначала идут выбор предикторов. cocos, detectron или detector_facenet_pytorch
-#### cocos ###################################################
-#Не очень понял
-def detector_cocos(conf_threshold , nms_threshold ): # cервак
-    path_0 = './'
-    configPath = path_0 + 'data/yolov3.cfg'
-    weightsPath = path_0 + 'data/yolov3.weights'
-    LABELS = []
-    with open(path_0 + 'data/coco.names', 'r') as f:
-        for line in f.readlines():
-            LABELS.append(line.strip('\r\n'))
-    img_size = 416
-    COLORS_ = np.random.randint(100, 255, size=(1100, 3), dtype="uint8")
-    predictor_cocos = Predictor_01(1, configPath, weightsPath, conf_threshold, nms_threshold, img_size, LABELS, COLORS_)
-
-    return predictor_cocos
-
-
-#### detectron cadet ###################################################
-#Не очень понял
-def detector_detectron_cadet(thr_confidence=0.8, model="pedet"): # cервак
-    COLORS_ = np.random.randint(100, 255, size=(1100, 3),dtype="uint8")
-    LABELS=['car','car1']
-    path0 = '../detectron2_src/'
-    if model == 'cadet':
-        LABELS = ['car', 'car1']
-    else:
-        LABELS = ['man', 'human']
-    config_path = path0 + 'test_data/' + model + '/config.yaml'
-    weights_path = path0 + 'test_data/' + model + '/model_final.pth'
-     
-    predictor_detectron = Detectron_cadet_00(config_path, weights_path, thr_confidence,  LABELS, COLORS_)    
-    
-    return predictor_detectron
 
 
 class Detector_Facenet_pytorch:
@@ -198,16 +161,16 @@ def descr_745_init(flag_model):
 # Выбор входных данных.
 class Caption_Class_01:
     #Загрузка входных данных
-    def __init__(self, path, flag,scale_):
+    def __init__(self, path, flag,quality_width):
         #path - путь для доступа к входным данным: для видео - путь к файлу, для папки с файлами - путь к папке, для rtsp/ftp - ссылка
         #flag - Тип входных данных: 0 - видео, 1 - папка с файлами, 2 - rtsp-поток, 3 - ftp-поток (не реализовано)
-        #scale_ - флаг для read_01. В этой версии не используется.
+        #quality_width - ширина, используется только для rtsp-потока
         self.ROS_image=None
         if flag==2:
             self.cap = cv2.VideoCapture(path)
             #Пока не очень понял насколько это нужно
-            #self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-            #self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080) 
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, quality_width)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, quality_width / (16/9))
         else:
             if flag==1:
                 self.files = os.listdir(path)
@@ -219,7 +182,6 @@ class Caption_Class_01:
         self.file=''
         self.input_type=flag
         self.count_file=0
-        self.scale_=scale_
 
     def isOpened(self):
         if self.input_type==1:

@@ -90,8 +90,6 @@ class TrackObjects:
             max(0, min(int(a['history'][-1][1] - a['h'] // 2), self.im_h)),  # top
             max(0, min(int(a['history'][-1][0] - a['w'] // 2), self.im_w))  # left
         )
-        print('bbox',bbox)
-        print('w',a['w'])
         w = abs(bbox[3] - bbox[1])
         h = abs(bbox[2] - bbox[0])
         #КОСТЫЛЬ
@@ -106,112 +104,6 @@ class TrackObjects:
         object_k['owned'].append(0)
         object_k['age_lost'] += 1
 
-
-        # path = np.array(object_k['history'])
-        # im_w = self.im_w
-        # im_h = self.im_h
-        # trajectory_0 = path / [im_w, im_h] - [0.5, 0.5]
-        # Y_hat = self.LSTM_Predictor.predict(trajectory_0)
-        # predicted = [im_w, im_h] * (Y_hat + [0.5, 0.5])
-        # object_k['history'].append(np.array(predicted[-1]).astype('float32'))
-
-        # path = np.array(object_k['history'][-7:])
-        # w_123 = self.v_[-path.shape[0] - 2:-2]
-        # we_1 = lsqr(w_123, path[:, 1], atol=1e-6, btol=1e-6, iter_lim=10)[0]
-        # predict_1 = np.dot(self.v_[-1], we_1) #Координата по y
-        # print('predict_1',predict_1)
-
-        # we_0 = lsqr(w_123, path[:, 0], atol=1e-6, btol=1e-6, iter_lim=10)[0]
-        # predict_0 = np.dot(self.v_[-1], we_0) #Координата по x
-        # print('predict_0',predict_0)
-        # print(object_k['id'])
-        # object_k['history'].append(np.array([predict_0,predict_1]).astype('float32'))
-        # a = object_k
-
-        # bbox = (
-        #     max(0, min(int(a['history'][-1][1] + a['h'] // 2), self.im_h)),  # bottom
-        #     max(0, min(int(a['history'][-1][0] + a['w'] // 2), self.im_w)),  # right
-        #     max(0, min(int(a['history'][-1][1] - a['h'] // 2), self.im_h)),  # top
-        #     max(0, min(int(a['history'][-1][0] - a['w'] // 2), self.im_w))  # left
-        # )
-        # vector_temp = None
-
-        # if predictor is not None:
-
-        #     bbox = (
-        #         max(0, min(int(a['history'][-1][1] + 80), self.im_h)),  # bottom
-        #         max(0, min(int(a['history'][-1][0] + 80), self.im_w)),  # right
-        #         max(0, min(int(a['history'][-1][1] - 80), self.im_h)),  # top
-        #         max(0, min(int(a['history'][-1][0] - 80), self.im_w))  # left
-        #     )
-        #     face_img = Image.fromarray(self.imageIn)
-        #     l_b = list(bbox)
-        #     l_b = [l_b[3], l_b[2], l_b[1], l_b[0]]
-        #     if l_b[0] <= 0 or l_b[1] <= 0 or l_b[2] <= 0 or l_b[3] <= 0:
-        #         face_img = face_img.crop(l_b)
-        #         print('No id:', object_k['id'])
-        #     else:
-        #         face_img = face_img.crop(l_b)
-        #         loader = transforms.Compose([
-        #             transforms.ToTensor()])
-        #         face_img = loader(face_img).unsqueeze(0)
-        #         res = face_img.to(predictor.device, torch.float)
-
-            # Calculate embedding (unsqueeze to add batch dimension)
-        #     vector_temp = predictor.resnet(res).detach().cpu().numpy()
-
-        # else:
-        #     box = [bbox]
-        #     vector_temp = face_recognition.face_encodings(self.imageIn, bbox)
-
-        # vectors = []
-        # for v in object_k['descriptor_']:
-        #     vectors.append(v)
-        # if len(vectors) > 10:
-        #     if diffuse_map.test_for_anomaly(np.array(vectors), vector_temp):
-        #         object_k['descriptor_'].append(vector_temp)
-        # else:
-        #     object_k['descriptor_'].append(vector_temp)
-    
-    # def occlusion_movement_(self):
-    #     for i_object in range(len(self.object_)):
-    #         object_k = self.object_[i_object]
-    #         print(object_k['history'],object_k['owned'],object_k['id'])
-    #         if object_k['owned'][-1] < 0.5:
-    #             xx = np.array(object_k['history'])
-    #             print(xx[:,0],xx[:,1])
-    #             x = self.get_average(xx[:,0])
-    #             y = self.get_average(xx[:,1])
-    #             print('x,y',x,y)
-    #             object_k['history'].append(np.array([x,y]).astype('float32'))
-
-    # def get_average(self, meaning):
-    #     model = LinearRegression()
-    #     d = meaning[-8:]
-    #     t = np.array(range(1,len(d)+1)).reshape((-1, 1))
-    #     model.fit(t, d) #Получаем веса
-    #     pred = model.predict(t)
-    #     next1 = model.intercept_ + model.coef_[0] *5
-    #     # zerkalo_pred = []
-    #     # for i in pred:
-    #     #     ss = pred[-1] - (i-pred[-1])
-    #     #     zerkalo_pred.append(ss)
-    #     # qq = np.append(np.append(zerkalo_pred,next1),d)
-    #     return next1
-
-    # def occlusion_movement(self):
-    #     for i_object in range(len(self.object_)):
-    #         object_k = self.object_[i_object]
-    #         print(object_k['history'],object_k['owned'],object_k['id'])
-    #         if object_k['owned'][-1] < 0.5:
-    #             path = np.array(object_k['history'])
-    #             im_w = self.im_w
-    #             im_h = self.im_h
-    #             trajectory_0 = path / [im_w, im_h] - [0.5, 0.5]
-    #             Y_hat = self.LSTM_Predictor.predict(trajectory_0)
-    #             predicted = [im_w, im_h] * (Y_hat + [0.5, 0.5])
-    #             object_k['history'].append(np.array(predicted[-1]).astype('float32'))
-
     # Работает, когда объект детектиться (синий баундинг бокс)
     def update_one_ob_00(self, object_k, i_best, pts_from_cnn, collect_color_featres_k,collect_confiedense):
         w = int(pts_from_cnn['l_'][i_best])
@@ -219,7 +111,6 @@ class TrackObjects:
         
         object_k['w'] = w
         object_k['h'] = h
-        print('id',object_k['id'],collect_confiedense[i_best])
         if collect_confiedense[i_best] > self.thr_confidence:
             object_k['descriptor_'].append(collect_color_featres_k[i_best])
 
@@ -228,7 +119,8 @@ class TrackObjects:
         object_k['history_X'].append(X_)
         object_k['owned'].append(1)
         object_k['age_lost'] = 0
-        object_k['3DV'] = self.translate_2d_to_3D_00(object_k,w,h,int(X_[0]), int(X_[1]),1377)
+        object_k['3DV'].append(self.translate_2d_to_3D_00(object_k,w,h,int(X_[0]), int(X_[1]),1377))
+        object_k['3D_points'] = self.compinsation_for_one_points(np.array(object_k['3DV']))
         object_k['holistic_age'] += 1
         object_k['confidences'].append(collect_confiedense[i_best])
         
@@ -301,10 +193,9 @@ class TrackObjects:
                                 feature_in_u = [collect_featres_k[i] for i in i_class]
                                 feature_cur = object_k['descriptor_'][-2] #Вектор с которым мы сравниваем
                                 cos_measure = cos_distance_multi(feature_cur, feature_in_u) #Тут получаем более корректное косинусное расстояние, исходя из сравнения векторов
-                                print('cos_measure',cos_measure)
 
                                 i_d_U2 = np.where(cos_measure > thr_color_features_0) #Проверка к какому айдишнику относится данный вектор.
-                                print('i_d_U2',i_d_U2)
+
                             i_d_U = np.intersect1d(i_d_U1, i_d_U2) #Смотрит есть ли в изначальном списке выбранный айдишник
 
                             if len(i_d_U) > 0:
@@ -360,7 +251,7 @@ class TrackObjects:
             object_[iop]['holistic'] = object_[iop]['holistic'][-7:]
             object_[iop]['depth'] = object_[iop]['depth'][-60:]
             object_[iop]['confidences'] = object_[iop]['confidences'][-h_0:]
-            object_[iop]['3D_holistic'] = object_[iop]['3D_holistic'][-5:]
+            object_[iop]['3DV'] = object_[iop]['3DV'][-7:]
 
 
             if sum(object_[iop]['owned']) > 0.1 * len(object_[iop]['owned']) or len(object_[iop]['owned']) < 10:
@@ -453,7 +344,7 @@ class TrackObjects:
                     int(a['history'][-1][1] - a['h'] // 2),  # bottom
                     int(a['history'][-1][0] - a['w'] // 2)  # left
                 )]
-                cv2.rectangle(frame1, (bbox[0][3], bbox[0][0]), (bbox[0][1], bbox[0][2]), (255, 0, 10), 2)
+                cv2.rectangle(frame1, (bbox[0][3], bbox[0][0]), (bbox[0][1], bbox[0][2]), (255, 0, 10), 2) #Красный ББокс
 
             else:
                 
@@ -465,7 +356,7 @@ class TrackObjects:
                     int(a['history'][-1][1] - a['h'] // 2),  # bottom
                     int(a['history'][-1][0] - a['w'] // 2)  # left
                 )]
-                cv2.rectangle(frame1, (bbox[0][3], bbox[0][0]), (bbox[0][1], bbox[0][2]), (10, 0, 255), 2)
+                cv2.rectangle(frame1, (bbox[0][3], bbox[0][0]), (bbox[0][1], bbox[0][2]), (10, 0, 255), 2) #Синий Ббокс
 
 
             cv2.circle(frame1, (int(couple[0]), int(couple[1])), int(object_0[i]['radius']), color, 1)
@@ -599,82 +490,39 @@ class TrackObjects:
         V_3D_q=V_3D_n*depth
 
         return V_3D_q
-
-
-    def transate_landmarks_to_3d(self,frame1,compensaition_index,collect_confiedense):
+    
+    def transate_one_landmark_to_3d(self,frame1):
         res_path_out = "save_fig/"
         object_0 = self.object_
         fig = plt.figure(figsize=(32, 20))
-        self.find_3d_points(object_0,fig,compensaition_index,collect_confiedense) #Ищем 3Д точки от скелета
+        self.find_3d_one_points(object_0,fig) #Ищем 3Д точки от скелета
         ax3 = fig.add_subplot(133) 
         ax3.imshow(frame1)
         plt.savefig(res_path_out + str(self.count) + '.jpg')
         self.count += 1
         plt.close(fig)
-    
-    def find_3d_points(self,object_0,fig,compensaition_index,collect_confiedense):
+
+    def find_3d_one_points(self,object_0,fig):
         ax1 = fig.add_subplot(132, projection='3d')
         ax2 = fig.add_subplot(131, projection='3d')
         for i in range(len(object_0)):
             a = object_0[i]
             owned =a['owned'][-1]
-            age = a['holistic_age']
-            if owned > 0.5 and age > 4:
-                #try:
-                print(a['id'],a['confidences'][-1])
-                if a['confidences'][-1] > 0.99:
-                    spis_x = []
-                    spis_y = []
-                    spis_z = []
-                    mean_points = self.compinsation_for_points(a['holistic'],compensaition_index) #Получаем усредненные точки
-                    for i in mean_points:
-                        #Считаем нормы разности по каждой координате.
-                        norma_x = mean_points[0][0] - i[0]
-                        norma_y = mean_points[0][1] - i[1]
-                        norma_z = (mean_points[0][2] - i[2]) * 0.3
-                        #Получаем реальные координаты по х,y,z для тела и добавляем в списки
-                        spis_x.append(a['3DV'][0] - norma_x)
-                        spis_y.append(a['3DV'][1] - norma_y)
-                        spis_z.append(a['3DV'][2] - norma_z)
-                    a['3D_holistic'].append([spis_x,spis_y,spis_z])
-                    self.drow_cub_1(ax1,a,spis_x,spis_y,spis_z,'Вид спереди',3,270,270)
-                    self.drow_cub_1(ax2,a,spis_x,spis_y,spis_z,'Вид сверху',2,0,270)
-                        # ax.scatter(a['3DV'][0], a['3DV'][1], a['3DV'][2],s = 40, c='g') #Точки из алгоритма Михаила.
-                    #except:
-                        #pass
-                #Костыль за случай конфиденса маленького
-                else:
-                    try:
-                        if a['3DV_lost'] != []:
-                            print('sit1')
-                            raznica = a['3DV'] - a['3DV_lost'] 
-                            x = np.array(a['3D_holistic'][-2][0]) + raznica[0]
-                            y = np.array(a['3D_holistic'][-2][1]) + raznica[1]
-                            z = np.array(a['3D_holistic'][-2][2]) + raznica[2]
-                            self.drow_cub_1(ax1,a,x,y,z,'Вид спереди',3,270,270)
-                            self.drow_cub_1(ax2,a,x,y,z,'Вид сверху',2,0,270)
-                        else:
-                            print('sit2')
-                            self.drow_cub_1(ax1,a,a['3D_holistic'][-2][0],a['3D_holistic'][-2][1],a['3D_holistic'][-2][2],'Вид спереди',3,270,270)
-                            self.drow_cub_1(ax2,a,a['3D_holistic'][-2][0],a['3D_holistic'][-2][1],a['3D_holistic'][-2][2],'Вид сверху',2,0,270)
-                    except:
-                        pass
+            age = a['age']
+            if owned > 0.5 and age > 1:
+                points = self.compinsation_for_one_points(np.array(a['3DV']))
+                self.drow_cub_1(ax1,a,points[0],points[1],points[2],'Вид спереди',3,270,270)
+                self.drow_cub_1(ax2,a,points[0],points[1],points[2],'Вид сверху',2,0,270)
 
-            elif owned < 0.5 and age > 4:
+            elif owned < 0.5 and age > 1:
                 try:
-                    #a['holistic'] = []
                     print('id',object_0[i]['id'])
                     print('lost',a['3DV_lost'])
                     print('3DV',a['3DV'])
-                    raznica = a['3DV_lost'] - a['3DV'] #3ДВ в этом случаи это последнйи раз когда был трекнут лицо и его точки. 3ДВ лост это красный ББокс и его координаты
-                    x = np.array(a['3D_holistic'][-3][0]) + raznica[0]
-                    y = np.array(a['3D_holistic'][-3][1]) + raznica[1]
-                    z = np.array(a['3D_holistic'][-3][2]) + raznica[2]
-                    self.drow_cub_1(ax1,a,x,y,z,'Вид спереди',3,270,270)
-                    self.drow_cub_1(ax2,a,x,y,z,'Вид сверху',2,0,270)
+                    self.drow_cub_1(ax1,a,a['3DV_lost'][0],a['3DV_lost'][1],a['3DV_lost'][2],'Вид спереди',3,270,270)
+                    self.drow_cub_1(ax2,a,a['3DV_lost'][0],a['3DV_lost'][1],a['3DV_lost'][2],'Вид сверху',2,0,270)
                 except:
                     pass
-
 
     def drow_cub_1(self,ax,object,x,y,z,view,size,elev,azim):
         colors = ['coral', 'lime', 'blue', 'purple', 'green', 'black', 'silver', 'yellow', 'red', 'pink','black', 'silver', 'yellow', 'red', 'pink']
@@ -868,7 +716,7 @@ class TrackObjects:
                 ob_ = image[max(0, beg_y):end_y, max(0, beg_x):end_x, :]
 
                 pref = 'fr_{:03d}_id_{:03d}'.format(frame_counter, self.object_[i]['id'])
-                cv2.imwrite(obj_path_out + pref + '.png', cv2.cvtColor(ob_, cv2.COLOR_BGR2RGB))
+                #cv2.imwrite(obj_path_out + pref + '.png', cv2.cvtColor(ob_, cv2.COLOR_BGR2RGB))
 
     def polynomial_regression_for_w(self,w):
         x = np.array([387,352,286,261,230,213,195,172,163,155,140,100,69,58,46,39,33,27])
@@ -903,6 +751,32 @@ class TrackObjects:
         h_ = model.predict(polynomial_features.fit_transform([[h]]))
 
         return h_[0]
+
+    def compinsation_for_one_points(self,points):
+        result = []
+        spisok = []
+        count = (points.shape[0] * points.shape[1]) // 3
+        for i in range(3):
+            spisok_ = []
+            index = 0
+            while index < count:
+                spisok_.append(points[index][i])
+                index += 1
+            spisok.append(spisok_)
+        # Собрали в списки по уникальным точкам. Всего списков 3 т.к уникальных 3 точек
+        for y in np.array(spisok):
+            x = np.array(range(1,len(y)+1)).reshape((-1, 1))
+            model = LinearRegression()
+            model.fit(x, y)
+            model = LinearRegression().fit(x, y)
+            y_pred = model.predict(x)
+            summa = [y_pred,y]
+            result.append(np.mean(summa))
+        #Усреднили каждую точку через линейную регрессию
+        mean_points = np.array_split(np.array(result),1) 
+        #Заспилитили 3 точек в списки по 1 точки. Получили 33 списка. Так как всего 33 ключевых точки по 3 координатам
+
+        return mean_points[0]
     
     def compinsation_for_points(self,holistic_points,compensaition_index):
         try:
@@ -947,7 +821,7 @@ class TrackObjects:
 # Начальные данные
 def kvant_state_init():
     return {'age' : 0,'holistic_age': 0,'age_lost' : 0,'id' :[] ,'class': [],  'history':[],'confidences':[],\
-                               'history_X':[],'owned':[1],'holistic':[],'3DV':[],'3DV_lost':[],'3D_holistic':[],\
+                               'history_X':[],'owned':[1],'holistic':[],'3DV':[],'3DV_lost':[],'3D_points':[],\
                                'descriptor_':[],'descriptor_PCA':[],'w':0,'h':0,'depth':[],\
             'class_trajectory': [0.5], 'class_trajectory_general': 0, 'radius': 10, 'N14': 10, 'init_posit':[]} 
 
@@ -1137,14 +1011,3 @@ def amax_2D(X_scaled):
     i_amax = int(np.fix(i_sort_relation_ / X_scaled.shape[1]))
     j_amax = int(i_sort_relation_ - i_amax * X_scaled.shape[1])
     return i_amax, j_amax, X_scaled[i_amax, j_amax]
-
-#КОСТЫЛЬ
-# if mean_points == []:
-#     print('2222222222222')
-#     raznica = a['3DV'] - a['3DV_lost'] #3ДВ в этом случаи это последнйи раз когда был трекнут лицо и его точки. 3ДВ лост это красный ББокс и его координаты
-#     x = np.array(a['3D_holistic'][-3][0]) + raznica[0]
-#     y = np.array(a['3D_holistic'][-3][1]) + raznica[1]
-#     z = np.array(a['3D_holistic'][-3][2]) + raznica[2]
-#     self.drow_cub_1(ax1,a,x,y,z,'Вид спереди',3,270,270)
-#     self.drow_cub_1(ax2,a,x,y,z,'Вид сверху',2,0,270)
-# else:

@@ -134,36 +134,21 @@ def init_000(flag_prediction, cap, predictor, list_params, LABELS, COLORS):
     quality_width = list_params['quality_width']
     resize_coef = list_params['resize_coef']
     thr_confidence = list_params['thr_confidence']
+    input_type_flag = list_params['input_type_flag']
     predictor_type = list_params[
         'predictor_type']  # 0 - yolo, 1 - detectron2 (cadet), 2 - detectron2 (pedet), 3 - facenet (?)
     
     # Выбор предиктора. Используем 4 - facenet_pytorch
     while (cap.isOpened()):
         ret, frame = cap.read()
-        #resize_coef = frame.shape[1]/frame.shape[0]
-        quality_height = int(quality_width/resize_coef)
-        frame = cv2.resize(frame, (quality_width,quality_height))
+        if input_type_flag != 2:
+            #resize_coef = frame.shape[1]/frame.shape[0]
+            quality_height = int(quality_width/resize_coef)
+            frame = cv2.resize(frame, (quality_width,quality_height))
         imageIn = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         XXX = frame1 = None
         try:
-            if predictor_type == 0:  # YOLO
-                XXX, frame1 = yolo_application_013(predictor, imageIn)
-            elif predictor_type == 1:  # detectron2 (cadet)
-                XXX, frame1 = detectron_application(predictor, imageIn)
-            elif predictor_type == 2:  # detectron2 (pedet)
-                XXX, frame1 = detectron_application(predictor, imageIn)
-            elif predictor_type == 3:  # face_detection
-                LABELS = ['face0', 'face1']
-
-                np.random.seed(42)
-                COLORS_ = np.random.randint(100, 215, size=(200, 3), dtype="uint8")
-                if USE_FACE_DETECTION:
-                    XXX, frame1, _ = face_detection_application(imageIn, COLORS_, LABELS, minsize, threshold, factor, margin, pnet,
-                                                                rnet, onet)
-                else:
-                    XXX, frame1 = face_detection_application(imageIn, COLORS_, LABELS, minsize, threshold, factor, margin, pnet,
-                                                             rnet, onet)
-            elif predictor_type == 4:  # facenet_pytorch
+            if predictor_type == 4:  # facenet_pytorch
                 XXX, frame1, _ = facenet_pytorch_application(predictor, imageIn)
         except:
             pass
@@ -174,20 +159,7 @@ def init_000(flag_prediction, cap, predictor, list_params, LABELS, COLORS):
         # Получаем центры + класс айди.
         try: 
             if len(XXX) > 0:
-                pts = None
-                if predictor_type == 0:  # YOLO
-                    pts = pts_init_yolo(predictor, frame)
-                elif predictor_type == 1:  # detectron2 (cadet)
-                    pts = pts_init_detectron(predictor, frame)
-                elif predictor_type == 2:  # detectron2 (pedet)
-                    pts = pts_init_detectron(predictor, frame)
-                elif predictor_type == 3:  # face_detection
-                    LABELS = ['face0', 'face1']
-
-                    np.random.seed(42)
-                    COLORS_ = np.random.randint(100, 215, size=(200, 3), dtype="uint8")
-                    pts = pts_init_face_detection(imageIn, COLORS_, LABELS, minsize, threshold, factor, margin, pnet, rnet, onet)
-                elif predictor_type == 4: # facenet_pytorch
+                if predictor_type == 4: # facenet_pytorch
                     pts = pts_init_facenet_pytorch(predictor, frame)
 
                 U = [(x['w'], x['h']) for x in XXX]

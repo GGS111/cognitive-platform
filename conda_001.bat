@@ -1,4 +1,4 @@
 C:
-cd C:\python\platform\CognitivePlatform_011
+cd C:\python\platform\tracker_one_points
 jupyter notebook
  
