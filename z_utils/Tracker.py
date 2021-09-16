@@ -42,11 +42,10 @@ class Tracker:
         self.check_period = list_params['check_period']
         self.l_forget_history = list_params['l_forget_history']
         self.manual_thr_radius = list_params['manual_thr_radius']
-
-        self.minsize = list_params['minsize']  # minimum size of face
         self.threshold = list_params['threshold']  # three steps's threshold
         self.factor = list_params['factor']  # scale factor 0.709
         self.margin = list_params['margin']
+        self.dscr_TL_00 = list_params['dscr_TL_00']
 
         self.thr_measure_hue_optflow2predict = list_params['thr_measure_hue_optflow2predict']
         self.thr_add_new = list_params['thr_add_new']
@@ -61,7 +60,6 @@ class Tracker:
             'predictor_type']  # 0 - yolo, 1 - detectron2 (cadet), 2 - detectron2 (pedet), 3 - facenet (?)
         self.detector_01 = list_params['detector_01']  # основной,   predictor_heads
         self.detector_02 = list_params['detector_02']  # второстепенный
-        self.dscr_TL_00 = list_params['dscr_TL_00']  # дескриптор объекта
         self.double_detect_flag = list_params['double_detect_flag']
         self.p_opt_flow = list_params['p_opt_flow']
         self.border_edge = list_params['border_edge']
@@ -233,8 +231,6 @@ class Tracker:
             self.classes_00 = [x_['class'] for x_ in self.TrackObjects.object_]
             #print('self.pts_00',self.pts_00)
 
-            self.r_edge = 1
-            self.border_edge = 5
             #Рисует ББОКС желтый на всех лицах. Время почти не занимает, трекает людей
             self.TrackObjects.add_new_object(self.pts_00, self.classes_00, self.XXX, self.thr_add_new, self.border_edge, self.r_edge, self.class_to_interest,
                                         frame1, self.collect_featres_k)                                     

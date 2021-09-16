@@ -121,11 +121,6 @@ def init_000(flag_prediction, cap, predictor, list_params, LABELS, COLORS):
 
 
     count_no_init = 0
-
-    minsize = list_params['minsize']  # minimum size of face
-    threshold = list_params['threshold']  # three steps's threshold
-    factor = list_params['factor']  # scale factor 0.709
-    margin = list_params['margin']
     cannals_hist = list_params['cannals_hist']
     flag_classify_traj = list_params['flag_classify_traj']
     path_to_w_classify_traj = list_params['path_to_w_classify_traj']
@@ -133,7 +128,7 @@ def init_000(flag_prediction, cap, predictor, list_params, LABELS, COLORS):
     path_to_prediction = list_params['path_to_prediction']
     quality_width = list_params['quality_width']
     resize_coef = list_params['resize_coef']
-    thr_confidence = list_params['thr_confidence']
+    confidence_trashhold = list_params['confidence_trashhold']
     input_type_flag = list_params['input_type_flag']
     predictor_type = list_params[
         'predictor_type']  # 0 - yolo, 1 - detectron2 (cadet), 2 - detectron2 (pedet), 3 - facenet (?)
@@ -173,7 +168,7 @@ def init_000(flag_prediction, cap, predictor, list_params, LABELS, COLORS):
 
     TrackObjects000 = TrackObjects(pts, flag_prediction, path_to_prediction,
                                    flag_classify_traj, path_to_w_classify_traj,
-                                   LABELS, COLORS,thr_confidence)
+                                   LABELS, COLORS,confidence_trashhold)
     TrackObjects000.cannals_hist = cannals_hist
     TrackObjects000.im_w = frame.shape[1]
     TrackObjects000.im_h = frame.shape[0]

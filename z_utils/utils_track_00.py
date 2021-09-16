@@ -23,7 +23,7 @@ from torchvision import transforms
 class TrackObjects:
 
     def __init__(self, pts, flag_prediction, path_to_prediction, flag_classify_traj,
-                 path_to_w_classify_traj, LABELS, COLORS,thr_confidence):
+                 path_to_w_classify_traj, LABELS, COLORS,confidence_trashhold):
         # flag_classify_traj -  классификатор траекторий: 1 - lstm 0 - CNN
         # path_to_w_classify_traj - путь к весам классификатора траекторий
         # flag_prediction - предсказатель траектории: 1 - lstm 0 - зеркальное отражение
@@ -68,7 +68,7 @@ class TrackObjects:
         self.dscr_TL_00 = None
         self.LABELS = LABELS
         self.COLORS = COLORS
-        self.thr_confidence = thr_confidence
+        self.confidence_trashhold = confidence_trashhold
         self.id_negative_set = []
         self.percent_of_nrecognized_for_classity = 0.5
 
@@ -111,7 +111,7 @@ class TrackObjects:
         
         object_k['w'] = w
         object_k['h'] = h
-        if collect_confiedense[i_best] > self.thr_confidence:
+        if collect_confiedense[i_best] > self.confidence_trashhold:
             object_k['descriptor_'].append(collect_color_featres_k[i_best])
 
         X_ = np.array(pts_from_cnn['coords'][i_best])
@@ -264,7 +264,6 @@ class TrackObjects:
     def add_new_object(self, pts_01, classes_01, XXX, r_, border_edge_0, rotine_edge, ind_classes, frame1, known_vectors = None):
         image = self.imageIn
         border_edge = border_edge_0 * self.im_w / 500
-        #border_edge = 6.4
         pts_00 = pts_01.copy()
         classes_00 = classes_01.copy()
         ### XXX from cnn
@@ -555,7 +554,6 @@ class TrackObjects:
             age = a['holistic_age']
             if owned > 0.5 and age > 4:
                 #try:
-                print(a['id'],a['confidences'][-1])
                 if a['confidences'][-1] > 0.99:
                     spis_x = []
                     spis_y = []
