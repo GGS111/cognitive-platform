@@ -419,25 +419,7 @@ class TrackObjects:
 
                     # Recolor image back to BGR for rendering
                     image.flags.writeable = True   
-                    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-                    # # 1. Draw face landmarks
-                    # mp_drawing.draw_landmarks(image, results.face_landmarks, mp_holistic.FACE_CONNECTIONS, 
-                    #                         mp_drawing.DrawingSpec(color=(80,110,10), thickness=1, circle_radius=1),
-                    #                         mp_drawing.DrawingSpec(color=(80,256,121), thickness=1, circle_radius=1)
-                    #                         )
-
-                    # # 2. Right hand
-                    # mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS, 
-                    #                         mp_drawing.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),
-                    #                         mp_drawing.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2)
-                    #                         )
-
-                    # # 3. Left Hand
-                    # mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS, 
-                    #                         mp_drawing.DrawingSpec(color=(121,22,76), thickness=2, circle_radius=4),
-                    #                         mp_drawing.DrawingSpec(color=(121,44,250), thickness=2, circle_radius=2)
-                    #                         )
+                    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)          
 
                     # 4. Pose Detections
                     mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS, 
@@ -510,15 +492,14 @@ class TrackObjects:
             owned =a['owned'][-1]
             age = a['age']
             if owned > 0.5 and age > 1:
-                points = self.compinsation_for_one_points(np.array(a['3DV']))
-                self.drow_cub_1(ax1,a,points[0],points[1],points[2],'Вид спереди',3,270,270)
-                self.drow_cub_1(ax2,a,points[0],points[1],points[2],'Вид сверху',2,0,270)
+                self.drow_cub_1(ax1,a,a['3D_points'][0],a['3D_points'][1],a['3D_points'][2],'Вид спереди',3,270,270)
+                self.drow_cub_1(ax2,a,a['3D_points'][0],a['3D_points'][1],a['3D_points'][2],'Вид сверху',2,0,270)
 
             elif owned < 0.5 and age > 1:
                 try:
                     print('id',object_0[i]['id'])
                     print('lost',a['3DV_lost'])
-                    print('3DV',a['3DV'])
+                    print('3DV',a['3D_points'])
                     self.drow_cub_1(ax1,a,a['3DV_lost'][0],a['3DV_lost'][1],a['3DV_lost'][2],'Вид спереди',3,270,270)
                     self.drow_cub_1(ax2,a,a['3DV_lost'][0],a['3DV_lost'][1],a['3DV_lost'][2],'Вид сверху',2,0,270)
                 except:
@@ -553,6 +534,80 @@ class TrackObjects:
             ax.scatter(zz, -zz, zz, c='g')
             ax.scatter(-zz, zz, zz, c='g')
             ax.scatter(zz, zz, zz, c='g')
+
+    def transate_landmarks_to_3d(self,frame1,compensaition_index,collect_confiedense):
+        res_path_out = "save_fig/"
+        object_0 = self.object_
+        fig = plt.figure(figsize=(32, 20))
+        self.find_3d_points(object_0,fig,compensaition_index,collect_confiedense) #Ищем 3Д точки от скелета
+        ax3 = fig.add_subplot(133) 
+        ax3.imshow(frame1)
+        plt.savefig(res_path_out + str(self.count) + '.jpg')
+        self.count += 1
+        plt.close(fig)
+    
+    def find_3d_points(self,object_0,fig,compensaition_index,collect_confiedense):
+        ax1 = fig.add_subplot(132, projection='3d')
+        ax2 = fig.add_subplot(131, projection='3d')
+        for i in range(len(object_0)):
+            a = object_0[i]
+            owned =a['owned'][-1]
+            age = a['holistic_age']
+            if owned > 0.5 and age > 4:
+                #try:
+                print(a['id'],a['confidences'][-1])
+                if a['confidences'][-1] > 0.99:
+                    spis_x = []
+                    spis_y = []
+                    spis_z = []
+                    mean_points = self.compinsation_for_points(a['holistic'],compensaition_index) #Получаем усредненные точки
+                    for i in mean_points:
+                        #Считаем нормы разности по каждой координате.
+                        norma_x = mean_points[0][0] - i[0]
+                        norma_y = mean_points[0][1] - i[1]
+                        norma_z = (mean_points[0][2] - i[2]) * 0.3
+                        #Получаем реальные координаты по х,y,z для тела и добавляем в списки
+                        spis_x.append(a['3D_points'][0] - norma_x)
+                        spis_y.append(a['3D_points'][1] - norma_y)
+                        spis_z.append(a['3D_points'][2] - norma_z)
+                    a['3D_holistic'].append([spis_x,spis_y,spis_z])
+                    self.drow_cub_1(ax1,a,spis_x,spis_y,spis_z,'Вид спереди',3,270,270)
+                    self.drow_cub_1(ax2,a,spis_x,spis_y,spis_z,'Вид сверху',2,0,270)
+                        # ax.scatter(a['3DV'][0], a['3DV'][1], a['3DV'][2],s = 40, c='g') #Точки из алгоритма Михаила.
+                    #except:
+                        #pass
+                #Костыль за случай конфиденса маленького
+                else:
+                    try:
+                        if a['3DV_lost'] != []:
+                            print('sit1')
+                            raznica = a['3D_points'] - a['3DV_lost'] 
+                            x = np.array(a['3D_holistic'][-2][0]) + raznica[0]
+                            y = np.array(a['3D_holistic'][-2][1]) + raznica[1]
+                            z = np.array(a['3D_holistic'][-2][2]) + raznica[2]
+                            self.drow_cub_1(ax1,a,x,y,z,'Вид спереди',3,270,270)
+                            self.drow_cub_1(ax2,a,x,y,z,'Вид сверху',2,0,270)
+                        else:
+                            print('sit2')
+                            self.drow_cub_1(ax1,a,a['3D_holistic'][-2][0],a['3D_holistic'][-2][1],a['3D_holistic'][-2][2],'Вид спереди',3,270,270)
+                            self.drow_cub_1(ax2,a,a['3D_holistic'][-2][0],a['3D_holistic'][-2][1],a['3D_holistic'][-2][2],'Вид сверху',2,0,270)
+                    except:
+                        pass
+
+            elif owned < 0.5 and age > 4:
+                try:
+                    #a['holistic'] = []
+                    print('id',object_0[i]['id'])
+                    print('lost',a['3DV_lost'])
+                    print('3DV',a['3D_points'])
+                    raznica = a['3DV_lost'] - a['3D_points'] #3ДВ в этом случаи это последнйи раз когда был трекнут лицо и его точки. 3ДВ лост это красный ББокс и его координаты
+                    x = np.array(a['3D_holistic'][-3][0]) + raznica[0]
+                    y = np.array(a['3D_holistic'][-3][1]) + raznica[1]
+                    z = np.array(a['3D_holistic'][-3][2]) + raznica[2]
+                    self.drow_cub_1(ax1,a,x,y,z,'Вид спереди',3,270,270)
+                    self.drow_cub_1(ax2,a,x,y,z,'Вид сверху',2,0,270)
+                except:
+                    pass
                 
     # Не понял
     def draw_prediction(self, frame1, p_, q01, q00, r):
@@ -822,7 +877,7 @@ class TrackObjects:
 def kvant_state_init():
     return {'age' : 0,'holistic_age': 0,'age_lost' : 0,'id' :[] ,'class': [],  'history':[],'confidences':[],\
                                'history_X':[],'owned':[1],'holistic':[],'3DV':[],'3DV_lost':[],'3D_points':[],\
-                               'descriptor_':[],'descriptor_PCA':[],'w':0,'h':0,'depth':[],\
+                               'descriptor_':[],'descriptor_PCA':[],'w':0,'h':0,'depth':[],'3D_holistic':[],\
             'class_trajectory': [0.5], 'class_trajectory_general': 0, 'radius': 10, 'N14': 10, 'init_posit':[]} 
 
 # Предиктор. Вроде не используем.

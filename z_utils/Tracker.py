@@ -216,7 +216,6 @@ class Tracker:
             #self.TrackObjects.predict_10(frame1)
             if self.add_holistic == 1:
                 self.TrackObjects.holistic_model(frame1)
-                #self.TrackObjects.transate_landmarks_to_3d(frame1)
 
 
         ### рисуем центры объектов
