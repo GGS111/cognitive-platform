@@ -136,7 +136,7 @@ def init_000(flag_prediction, cap, predictor, list_params, LABELS, COLORS):
     # Выбор предиктора. Используем 4 - facenet_pytorch
     while (cap.isOpened()):
         ret, frame = cap.read()
-        if input_type_flag != 2:
+        if input_type_flag != 2 or input_type_flag != 3:
             #resize_coef = frame.shape[1]/frame.shape[0]
             quality_height = int(quality_width/resize_coef)
             frame = cv2.resize(frame, (quality_width,quality_height))

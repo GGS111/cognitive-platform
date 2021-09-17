@@ -100,7 +100,7 @@ class Tracker:
 
         while self.cap.isOpened(): 
             ret, frame = self.cap.read()
-            if self.input_type_flag != 2:
+            if self.input_type_flag != 2 or self.input_type_flag != 3:
                 print('был',frame.shape[1], frame.shape[0])
                 #resize_coef = frame.shape[1]/frame.shape[0]
                 
@@ -145,7 +145,7 @@ class Tracker:
         #Считываем фреймы. Если Тру то прочитан
         if (not ret) or ret < 0:
             return None
-        if self.input_type_flag != 2:
+        if self.input_type_flag != 2 or self.input_type_flag != 3:
             #resize_coef = frame.shape[1]/frame.shape[0]
             quality_height = int(self.quality_width/self.resize_coef)
             frame = cv2.resize(frame, (self.quality_width,quality_height))

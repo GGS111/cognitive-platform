@@ -171,6 +171,11 @@ class Caption_Class_01:
             #Пока не очень понял насколько это нужно
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, quality_width)
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, quality_width / (16/9))
+        elif flag ==3:
+            #Костыль сделанный именно для вебки. Ставим исходящее качество 1920/1080
+            self.cap = cv2.VideoCapture(path, cv2.CAP_FFMPEG)
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, quality_width) 
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, quality_width / (16/9))
         else:
             if flag==1:
                 self.files = os.listdir(path)
