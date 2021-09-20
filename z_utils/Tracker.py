@@ -99,9 +99,17 @@ class Tracker:
         assert self.cap.isOpened()
 
         while self.cap.isOpened(): 
-            if self.cap.cameraBufferCleaner.last_frame is not None:
+            if self.input_type_flag == 3:
+                if self.cap.cameraBufferCleaner.last_frame is not None:
+                    _, frame = self.cap.read()
+                    self.frame_counter += 1
+                    if self.frame_counter > self.start_ind:
+                        break
+                else:
+                    continue
+            else:
                 _, frame = self.cap.read()
-                if self.input_type_flag < 1.5:
+                if self.input_type_flag != 2:
                     print('был',frame.shape[1], frame.shape[0])
                     #resize_coef = frame.shape[1]/frame.shape[0]
                     
@@ -112,8 +120,6 @@ class Tracker:
                 self.frame_counter += 1
                 if self.frame_counter > self.start_ind:
                     break
-            else:
-                continue
         # Инициализация параметров
         self.TrackObjects = init_000(self.flag_prediction, self.cap, self.detector_01, self.list_params,
                                      self.detector_01.LABELS,
@@ -145,20 +151,12 @@ class Tracker:
         #Считывание занимает 0.04 сек
         self.frame_counter += 1
         _, frame = self.cap.read() 
-        #Считываем фреймы. Если Тру то прочитан
-        # if (not ret) or ret < 0:
-        #     return None
         if self.input_type_flag < 1.5:
-            #resize_coef = frame.shape[1]/frame.shape[0]
             quality_height = int(self.quality_width/self.resize_coef)
             frame = cv2.resize(frame, (self.quality_width,quality_height))
             
         self.TrackObjects.imageIn = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-
-        #plt.imshow('image',self.TrackObjects.imageIn)
-        #plt.show()
-        #self.TrackObjects - Просто Картинка из фреймов выше
 
         try:
             gray_frame = cv2.cvtColor(self.TrackObjects.imageIn, cv2.COLOR_BGR2GRAY)
@@ -251,8 +249,8 @@ class Tracker:
             self.TrackObjects.Draw(frame1, self.frame_counter)
 
         ### обновляем PCA of гистограммы цветовой компоненты HUE вдоль истории глубиной в 10 кадров
-        if self.frame_counter % 2000 == 0:
-            self.TrackObjects.PCA_update()
+        # if self.frame_counter % 2000 == 0:
+        #     self.TrackObjects.PCA_update()
 
         ### вырезаем объекты
         if self.flag_cut_and_save_objects:

@@ -30,9 +30,7 @@ class Detector_Facenet_pytorch:
         self.mtcnn = MTCNN(keep_all=True, device=self.device)
 
         # Create an inception resnet (in eval mode):
-        self.resnet = InceptionResnetV1(pretrained='vggface2').eval()
-        if video_adapter == 1:
-            self.resnet.cuda()
+        self.resnet = InceptionResnetV1(pretrained='vggface2').eval().to(self.device)
 
 
     def run_00(self, image):
@@ -41,27 +39,12 @@ class Detector_Facenet_pytorch:
 
         # Detect faces
         self.bboxes_, self.scores_ = self.mtcnn.detect(img)
-        # print('ДО ФИЛЬТРАЦИИ')
-        # print('self.bboxes, self.scores',self.bboxes_, self.scores_)
-
-        # end = time.time()
-        # print("[INFO] Bbox {:.6f} seconds".format(end - start))
-
-        # start = time.time()
-        #ЧАСТЬ КОДА С ПЕРЕВОДОМ. Смотреть отсюда до self.encodings. То что закомичено используется для тестов скорости.
         to_int = np.vectorize(np.int)
         if type(self.bboxes_) != type(None):
             self.bboxes_ = to_int(self.bboxes_)
             img_cropped = self.mtcnn(img)
-            # img_cropped.to(self.device, torch.float)
-            if self.video_adapter == 1:
-                img_cropped = img_cropped.cuda()
-        #ТУТ ЗАКАНЧИВАЕТСЯ ЭТОТ КУСОК, который занимает такое же время как и детекция лица.
-            # end = time.time()
-            # print("[INFO] changes {:.6f} seconds".format(end - start))
-            # Calculate embedding (unsqueeze to add batch dimension)
-            # start = time.time()
-            self.encodings_ = self.resnet(img_cropped).detach().cpu().numpy()
+            img_cropped = img_cropped.to(self.device)
+            self.encodings_ = self.resnet(img_cropped).detach().cpu()
 
             #ФИЛЬТРАЦИЯ ПО КОНФИДЕНЦ ДЛЯ УДАЛЕНИЯ ЛОЖНЫХ ДЕТЕКЦИЙ
             result = []
