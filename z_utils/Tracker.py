@@ -99,18 +99,21 @@ class Tracker:
         assert self.cap.isOpened()
 
         while self.cap.isOpened(): 
-            ret, frame = self.cap.read()
-            if self.input_type_flag != 2 or self.input_type_flag != 3:
-                print('был',frame.shape[1], frame.shape[0])
-                #resize_coef = frame.shape[1]/frame.shape[0]
-                
-                quality_height = int(self.quality_width/self.resize_coef)
+            if self.cap.cameraBufferCleaner.last_frame is not None:
+                _, frame = self.cap.read()
+                if self.input_type_flag < 1.5:
+                    print('был',frame.shape[1], frame.shape[0])
+                    #resize_coef = frame.shape[1]/frame.shape[0]
+                    
+                    quality_height = int(self.quality_width/self.resize_coef)
 
-                frame = cv2.resize(frame, (self.quality_width,quality_height))
-                print('стал',frame.shape[1], frame.shape[0])
-            self.frame_counter += 1
-            if self.frame_counter > self.start_ind:
-                break
+                    frame = cv2.resize(frame, (self.quality_width,quality_height))
+                    print('стал',frame.shape[1], frame.shape[0])
+                self.frame_counter += 1
+                if self.frame_counter > self.start_ind:
+                    break
+            else:
+                continue
         # Инициализация параметров
         self.TrackObjects = init_000(self.flag_prediction, self.cap, self.detector_01, self.list_params,
                                      self.detector_01.LABELS,
@@ -141,16 +144,17 @@ class Tracker:
     def TrackImage(self):
         #Считывание занимает 0.04 сек
         self.frame_counter += 1
-        ret, frame = self.cap.read() 
+        _, frame = self.cap.read() 
         #Считываем фреймы. Если Тру то прочитан
-        if (not ret) or ret < 0:
-            return None
-        if self.input_type_flag != 2 or self.input_type_flag != 3:
+        # if (not ret) or ret < 0:
+        #     return None
+        if self.input_type_flag < 1.5:
             #resize_coef = frame.shape[1]/frame.shape[0]
             quality_height = int(self.quality_width/self.resize_coef)
             frame = cv2.resize(frame, (self.quality_width,quality_height))
             
         self.TrackObjects.imageIn = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
 
         #plt.imshow('image',self.TrackObjects.imageIn)
         #plt.show()

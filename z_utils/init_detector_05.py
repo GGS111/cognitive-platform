@@ -1,6 +1,7 @@
 from z_utils.utils_015 import *
 import os
 import torch
+import threading
 import time
 import cv2
 from facenet_pytorch import MTCNN, InceptionResnetV1
@@ -158,6 +159,17 @@ def descr_745_init(flag_model):
     dscr_846=ObjectDescriptor(config_p, w_path,flag_model)
     return  dscr_846 
 
+class CameraBufferCleanerThread(threading.Thread):
+    def __init__(self, camera, name='camera-buffer-cleaner-thread'):
+        self.camera = camera
+        self.last_frame = None
+        super(CameraBufferCleanerThread, self).__init__(name=name)
+        self.start()
+
+    def run(self):
+        while True:
+            ret, self.last_frame = self.camera.read()
+
 # Выбор входных данных.
 class Caption_Class_01:
     #Загрузка входных данных
@@ -174,8 +186,7 @@ class Caption_Class_01:
         elif flag ==3:
             #Костыль сделанный именно для вебки. Ставим исходящее качество 1920/1080
             self.cap = cv2.VideoCapture(path, cv2.CAP_FFMPEG)
-            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, quality_width) 
-            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, quality_width / (16/9))
+            self.cameraBufferCleaner = CameraBufferCleanerThread(self.cap)
         else:
             if flag==1:
                 self.files = os.listdir(path)
@@ -183,6 +194,7 @@ class Caption_Class_01:
                 #shuffle(self.files)
             elif flag==0:
                 self.cap = cv2.VideoCapture(path)
+               
         self.path=path
         self.file=''
         self.input_type=flag
@@ -218,6 +230,9 @@ class Caption_Class_01:
                 q_=1
             self.count_file+=1    
             return q_, open_cv_image
+        elif self.input_type == 3:
+            ss = self.cameraBufferCleaner.last_frame.copy()
+            return None,ss
         elif self.input_type == 4:
             return 1, self.ROS_image
         else:
