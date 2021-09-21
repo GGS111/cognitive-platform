@@ -119,7 +119,7 @@ class TrackObjects:
         object_k['history_X'].append(X_)
         object_k['owned'].append(1)
         object_k['age_lost'] = 0
-        object_k['3DV'].append(self.translate_2d_to_3D_00(object_k,w,h,int(X_[0]), int(X_[1]),1377))
+        object_k['3DV'].append(self.translate_2d_to_3D_00(object_k,w,h,int(X_[0]), int(X_[1]),1900))
         object_k['3D_points'] = self.compinsation_for_one_points(np.array(object_k['3DV']))
         object_k['holistic_age'] += 1
         object_k['confidences'].append(collect_confiedense[i_best])
@@ -469,6 +469,7 @@ class TrackObjects:
         V_3D=np.array([0,0,f])+np.array([OX[0],OX[1],0])
         V_3D_n=V_3D/(np.linalg.norm(V_3D)+eps_)
         V_3D_q=V_3D_n*depth
+        print('V_3D_q',V_3D_q)
 
         return V_3D_q
     
@@ -772,8 +773,8 @@ class TrackObjects:
                 #cv2.imwrite(obj_path_out + pref + '.png', cv2.cvtColor(ob_, cv2.COLOR_BGR2RGB))
 
     def polynomial_regression_for_w(self,w):
-        x = np.array([387,352,286,261,230,213,195,172,163,155,140,100,69,58,46,39,33,27])
-        y = np.array([50,60,70,80,90,100,110,120,130,140,150,200,300,400,500,610,710,800])
+        x = np.array([343,253,196,160,130,123,107,98,93,87,80,75,68,63])
+        y = np.array([198,261,332,406,468,495,541,578,616,644,691,750,800,863])
 
         x = x[:, np.newaxis]
         y = y[:, np.newaxis]
@@ -789,8 +790,8 @@ class TrackObjects:
         return w_[0]
 
     def polynomial_regression_for_h(self,h):
-        x = np.array([525,477,389,349,304,283,255,234,217,204,182,134,87,72,57,48,40,33])
-        y = np.array([50,60,70,80,90,100,110,120,130,140,150,200,300,400,500,610,710,800])
+        x = np.array([437,327,254,210,167,158,133,123,114,108,100,92,88,80])
+        y = np.array([198,261,332,406,468,495,541,578,616,644,691,750,800,863])
 
         x = x[:, np.newaxis]
         y = y[:, np.newaxis]
