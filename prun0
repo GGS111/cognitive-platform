@@ -1,0 +1,16 @@
+         1486116 function calls (1465404 primitive calls) in 4.270 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1798 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.001    0.001    4.270    4.270 {built-in method builtins.exec}
+        1    0.000    0.000    4.269    4.269 <string>:1(<module>)
+        4    0.004    0.001    2.968    0.742 <string>:167(TrackImage)
+        4    0.006    0.002    2.964    0.741 Tracker.py:150(TrackImage)
+        6    0.002    0.000    1.724    0.287 utils_015.py:34(facenet_pytorch_application)
+        6    0.004    0.001    1.712    0.285 init_detector_05.py:36(run_00)
+       12    0.001    0.000    1.550    0.129 mtcnn.py:272(detect)
+       12    0.469    0.039    1.549    0.129 detect_face.py:25(detect_face)
+        4    0.000    0.000    1.459    0.365 utils_track_00.py:315(Draw)
+        4    0.000    0.000    1.271    0.318 pyplot.py:324(show)

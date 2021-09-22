@@ -97,7 +97,7 @@ class TrackObjects:
             w = a['w']
         if h < a['h']:
             h = a['h']
-        object_k['3DV_lost'] = self.translate_2d_to_3D_00(object_k,w,h,int(X_[0]), int(X_[1]),1377)
+        object_k['3DV_lost'] = self.translate_2d_to_3D_00(object_k,w,h,int(X_[0]), int(X_[1]),1800)
         #except:
             #pass
 
@@ -119,7 +119,7 @@ class TrackObjects:
         object_k['history_X'].append(X_)
         object_k['owned'].append(1)
         object_k['age_lost'] = 0
-        object_k['3DV'].append(self.translate_2d_to_3D_00(object_k,w,h,int(X_[0]), int(X_[1]),1900))
+        object_k['3DV'].append(self.translate_2d_to_3D_00(object_k,w,h,int(X_[0]), int(X_[1]),1800))
         object_k['3D_points'] = self.compinsation_for_one_points(np.array(object_k['3DV']))
         object_k['holistic_age'] += 1
         object_k['confidences'].append(collect_confiedense[i_best])
@@ -453,9 +453,10 @@ class TrackObjects:
         '''
         model = LinearRegression()
         eps_=10**(-10)
+        print('w,h,x,y',w_,h_,x_, y_,w_/self.im_w,h_/self.im_h,self.im_w,self.im_h)
 
-        depth_w = self.polynomial_regression_for_w(w_)
-        depth_h = self.polynomial_regression_for_h(h_)
+        depth_w = self.polynomial_regression_for_w(w_/self.im_w)
+        depth_h = self.polynomial_regression_for_h(h_/self.im_h)
         depth_ = (depth_w + depth_h)/200
         object_k['depth'].append(depth_)
         #Посторение линейное регрессии
@@ -466,10 +467,10 @@ class TrackObjects:
         depth = np.mean([model.predict(x),d]) #Усредняем полученные значения. Это и будет наша глубина
         Z_=np.array([self.im_w/2,self.im_h/2])#центр
         OX=np.array([x_, y_])-Z_# вектор из центра в точку
-        V_3D=np.array([0,0,f])+np.array([OX[0],OX[1],0])
+        V_3D=np.array([0,0,f])+np.array([OX[0]*(1920/self.im_w),OX[1]*(1080/self.im_h),0])
         V_3D_n=V_3D/(np.linalg.norm(V_3D)+eps_)
         V_3D_q=V_3D_n*depth
-        print('V_3D_q',V_3D_q)
+        V_3D_q = [V_3D_q[0]*0.5,V_3D_q[1]*0.33,V_3D_q[2]] #Костыль для зазумленный изначально камеры
 
         return V_3D_q
     
@@ -773,7 +774,7 @@ class TrackObjects:
                 #cv2.imwrite(obj_path_out + pref + '.png', cv2.cvtColor(ob_, cv2.COLOR_BGR2RGB))
 
     def polynomial_regression_for_w(self,w):
-        x = np.array([343,253,196,160,130,123,107,98,93,87,80,75,68,63])
+        x = np.array([343,253,196,160,130,123,107,98,93,87,80,75,68,63]) / 1920
         y = np.array([198,261,332,406,468,495,541,578,616,644,691,750,800,863])
 
         x = x[:, np.newaxis]
@@ -790,7 +791,7 @@ class TrackObjects:
         return w_[0]
 
     def polynomial_regression_for_h(self,h):
-        x = np.array([437,327,254,210,167,158,133,123,114,108,100,92,88,80])
+        x = np.array([437,327,254,210,167,158,133,123,114,108,100,92,88,80]) / 1080
         y = np.array([198,261,332,406,468,495,541,578,616,644,691,750,800,863])
 
         x = x[:, np.newaxis]

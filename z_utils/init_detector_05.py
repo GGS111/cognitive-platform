@@ -42,8 +42,7 @@ class Detector_Facenet_pytorch:
         to_int = np.vectorize(np.int)
         if type(self.bboxes_) != type(None):
             self.bboxes_ = to_int(self.bboxes_)
-            img_cropped = self.mtcnn(img)
-            img_cropped = img_cropped.to(self.device)
+            img_cropped = self.mtcnn(img).to(self.device)
             self.encodings_ = self.resnet(img_cropped).detach().cpu()
 
             #ФИЛЬТРАЦИЯ ПО КОНФИДЕНЦ ДЛЯ УДАЛЕНИЯ ЛОЖНЫХ ДЕТЕКЦИЙ

@@ -102,6 +102,13 @@ class Tracker:
             if self.input_type_flag == 3:
                 if self.cap.cameraBufferCleaner.last_frame is not None:
                     _, frame = self.cap.read()
+                    print('был',frame.shape[1], frame.shape[0])
+                    #resize_coef = frame.shape[1]/frame.shape[0]
+                    
+                    quality_height = int(self.quality_width/self.resize_coef)
+
+                    frame = cv2.resize(frame, (self.quality_width,quality_height))
+                    print('стал',frame.shape[1], frame.shape[0])
                     self.frame_counter += 1
                     if self.frame_counter > self.start_ind:
                         break
@@ -151,7 +158,7 @@ class Tracker:
         #Считывание занимает 0.04 сек
         self.frame_counter += 1
         _, frame = self.cap.read() 
-        if self.input_type_flag < 1.5:
+        if self.input_type_flag != 2:
             quality_height = int(self.quality_width/self.resize_coef)
             frame = cv2.resize(frame, (self.quality_width,quality_height))
             
