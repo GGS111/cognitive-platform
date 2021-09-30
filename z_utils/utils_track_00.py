@@ -453,7 +453,7 @@ class TrackObjects:
         '''
         model = LinearRegression()
         eps_=10**(-10)
-        print('w,h,x,y',w_,h_,x_, y_,w_/self.im_w,h_/self.im_h,self.im_w,self.im_h)
+        #print('w,h,x,y',w_,h_,x_, y_,w_/self.im_w,h_/self.im_h,self.im_w,self.im_h)
 
         depth_w = self.polynomial_regression_for_w(w_/self.im_w)
         depth_h = self.polynomial_regression_for_h(h_/self.im_h)
